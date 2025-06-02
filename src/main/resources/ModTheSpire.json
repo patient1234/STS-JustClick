@@ -1,9 +1,9 @@
 {
-  "modid": "aislayer",
-  "name": "AI爬塔",
+  "modid": "justclick",
+  "name": "点击打牌",
   "author_list": ["河童"],
-  "description": "让AI来帮你打牌！",
+  "description": "点一下直接打出牌，不需要拖动。",
   "dependencies": ["basemod"],
   "version": "0.0.1",
-  "sts_version": "04-13-2025"
+  "sts_version": "06-2-2025"
 }

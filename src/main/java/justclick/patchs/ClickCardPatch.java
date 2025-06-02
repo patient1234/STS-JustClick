@@ -1,24 +1,96 @@
-package justclick;
+package justclick.patchs;
 
+import com.evacipated.cardcrawl.modthespire.lib.SpireInsertPatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
-import com.evacipated.cardcrawl.modthespire.lib.SpirePostfixPatch;
 import com.megacrit.cardcrawl.cards.AbstractCard;
+import com.megacrit.cardcrawl.characters.AbstractPlayer;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.input.InputHelper;
+import com.megacrit.cardcrawl.monsters.AbstractMonster;
+import justclick.panels.ConfigPanel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+
 @SpirePatch(
-        clz = AbstractCard.class,
-        method = "update"
+        clz = AbstractPlayer.class,
+        method = "clickAndDragCards"
 )
-public class clickCardPatch {
+public class ClickCardPatch {
 
 
-    public static final Logger logger = LogManager.getLogger(clickCardPatch.class.getName());
+    public static final Logger logger = LogManager.getLogger(ClickCardPatch.class.getName());
 
-    @SpirePostfixPatch
-    public static void Postfix(AbstractCard __instance) {
-        if (__instance.hb.clicked) {
-            logger.info("点击了卡牌: {}", __instance.name);
+    @SpireInsertPatch(
+            rloc = 28
+    )
+    public static void Insert(AbstractPlayer __instance) {
+        if (InputHelper.justClickedLeft) {
+            try {
+
+                AbstractCard clickedCard = __instance.hoveredCard;
+
+                logger.info("点击了卡牌: {}", clickedCard);
+
+                Method playCardMethod = AbstractPlayer.class.getDeclaredMethod("playCard");
+                playCardMethod.setAccessible(true);
+
+                switch (clickedCard.type) {
+                    case ATTACK:
+                        ArrayList<AbstractMonster> availableMonsters = new ArrayList<>();
+
+                        for (AbstractMonster m : AbstractDungeon.getMonsters().monsters) {
+                            if (!m.escaped && !m.isDead && !m.halfDead) {
+                                availableMonsters.add(m);
+                            }
+                        }
+
+                        if (( availableMonsters.size() == 1 && ConfigPanel.when_only_attacking_one) || ( clickedCard.target == AbstractCard.CardTarget.ALL_ENEMY && ConfigPanel.when_attacking_all)) {
+
+                            AbstractMonster hoveredMonster = availableMonsters.get(0);
+
+                            Field field = AbstractPlayer.class.getDeclaredField("hoveredMonster");
+                            field.setAccessible(true);
+                            field.set(__instance, hoveredMonster);
+
+                            playCardMethod.invoke(__instance);
+                        }
+                        break;
+                    case SKILL:
+                        if (ConfigPanel.when_playing_skill) {
+                            playCardMethod.invoke(__instance);
+                        }
+                        break;
+                    case POWER:
+                        if (ConfigPanel.when_playing_power) {
+                            playCardMethod.invoke(__instance);
+                        }
+                        break;
+                    case STATUS:
+                        if (ConfigPanel.when_playing_status) {
+                            playCardMethod.invoke(__instance);
+                        }
+                        break;
+                    case CURSE:
+                        if (ConfigPanel.when_playing_curse) {
+                            playCardMethod.invoke(__instance);
+                        }
+                        break;
+                    default:
+                        logger.info("未知类型的卡牌被点击");
+                }
+            } catch (NoSuchMethodException e) {
+                logger.error("找不到playCard方法", e);
+            } catch (IllegalAccessException e) {
+                logger.error("无法访问playCard方法", e);
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                logger.error("调用playCard方法失败", e);
+            } catch (NoSuchFieldException e) {
+                logger.error("找不到hoveredMonster字段", e);
+            }
         }
     }
 }
