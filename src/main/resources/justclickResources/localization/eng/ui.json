@@ -1,0 +1,12 @@
+{
+  "justclick:Config": {
+    "TEXT_DICT": {
+      "when_only_attacking_one": "仅攻击一个目标时",
+      "when_attacking_all": "攻击全部目标时",
+      "when_playing_skill": "打出技能牌时",
+      "when_playing_power": "打出能力牌时",
+      "when_playing_status": "打出状态牌时",
+      "when_playing_curse": "打出诅咒牌时"
+    }
+  }
+}
