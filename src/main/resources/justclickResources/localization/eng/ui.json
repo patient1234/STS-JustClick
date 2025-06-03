@@ -1,12 +1,11 @@
 {
   "justclick:Config": {
     "TEXT_DICT": {
-      "when_only_attacking_one": "when attacking only one target",
-      "when_attacking_all": "when attacking all targets",
-      "when_playing_skill": "when playing skill cards",
-      "when_playing_power": "when playing power cards",
-      "when_playing_status": "when playing status cards",
-      "when_playing_curse": "when playing curse cards"
+      "when_only_targeting_one": "when only targeting one",
+      "when_targeting_all": "when targeting all",
+      "when_targeting_none": "when targeting none",
+      "when_targeting_self": "when targeting self",
+      "when_targeting_self_and_enemy": "when targeting self and enemy"
     }
   }
 }

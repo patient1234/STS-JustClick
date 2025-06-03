@@ -14,12 +14,11 @@ import java.util.Map;
 
 public class ConfigPanel extends EasyConfigPanel {
 
-    public static boolean when_only_attacking_one = true;
-    public static boolean when_attacking_all = true;
-    public static boolean when_playing_skill = true;
-    public static boolean when_playing_power = true;
-    public static boolean when_playing_status = true;
-    public static boolean when_playing_curse = true;
+    public static boolean when_only_targeting_one = true;
+    public static boolean when_targeting_all = true;
+    public static boolean when_targeting_self = true;
+    public static boolean when_targeting_none = true;
+    public static boolean when_targeting_self_and_enemy = true;
 
     public ConfigPanel() {
         super("justclick", getUIStrings(), "config");

@@ -38,49 +38,29 @@ public class ClickCardPatch {
                 Method playCardMethod = AbstractPlayer.class.getDeclaredMethod("playCard");
                 playCardMethod.setAccessible(true);
 
-                switch (clickedCard.type) {
-                    case ATTACK:
-                        ArrayList<AbstractMonster> availableMonsters = new ArrayList<>();
+                ArrayList<AbstractMonster> availableMonsters = new ArrayList<>();
 
-                        for (AbstractMonster m : AbstractDungeon.getMonsters().monsters) {
-                            if (!m.escaped && !m.isDead && !m.halfDead) {
-                                availableMonsters.add(m);
-                            }
-                        }
+                for (AbstractMonster m : AbstractDungeon.getMonsters().monsters) {
+                    if (!m.escaped && !m.isDead && !m.halfDead) {
+                        availableMonsters.add(m);
+                    }
+                }
 
-                        if (( availableMonsters.size() == 1 && ConfigPanel.when_only_attacking_one) || ( clickedCard.target == AbstractCard.CardTarget.ALL_ENEMY && ConfigPanel.when_attacking_all)) {
+                if (
+                        ( clickedCard.target == AbstractCard.CardTarget.ENEMY && availableMonsters.size() == 1 && ConfigPanel.when_only_targeting_one) ||
+                        ( clickedCard.target == AbstractCard.CardTarget.ALL_ENEMY && ConfigPanel.when_targeting_all) ||
+                        ( clickedCard.target == AbstractCard.CardTarget.SELF && ConfigPanel.when_targeting_self) ||
+                        ( clickedCard.target == AbstractCard.CardTarget.NONE && ConfigPanel.when_targeting_none) ||
+                        ( clickedCard.target == AbstractCard.CardTarget.SELF_AND_ENEMY && ConfigPanel.when_targeting_self_and_enemy)
+                ) {
 
-                            AbstractMonster hoveredMonster = availableMonsters.get(0);
+                    AbstractMonster hoveredMonster = availableMonsters.get(0);
 
-                            Field field = AbstractPlayer.class.getDeclaredField("hoveredMonster");
-                            field.setAccessible(true);
-                            field.set(__instance, hoveredMonster);
+                    Field field = AbstractPlayer.class.getDeclaredField("hoveredMonster");
+                    field.setAccessible(true);
+                    field.set(__instance, hoveredMonster);
 
-                            playCardMethod.invoke(__instance);
-                        }
-                        break;
-                    case SKILL:
-                        if (ConfigPanel.when_playing_skill) {
-                            playCardMethod.invoke(__instance);
-                        }
-                        break;
-                    case POWER:
-                        if (ConfigPanel.when_playing_power) {
-                            playCardMethod.invoke(__instance);
-                        }
-                        break;
-                    case STATUS:
-                        if (ConfigPanel.when_playing_status) {
-                            playCardMethod.invoke(__instance);
-                        }
-                        break;
-                    case CURSE:
-                        if (ConfigPanel.when_playing_curse) {
-                            playCardMethod.invoke(__instance);
-                        }
-                        break;
-                    default:
-                        logger.info("未知类型的卡牌被点击");
+                    playCardMethod.invoke(__instance);
                 }
             } catch (NoSuchMethodException e) {
                 logger.error("找不到playCard方法", e);
