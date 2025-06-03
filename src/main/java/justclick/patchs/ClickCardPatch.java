@@ -46,6 +46,8 @@ public class ClickCardPatch {
                     }
                 }
 
+                logger.info("怪物: {}", availableMonsters);
+
                 if (
                         ( clickedCard.target == AbstractCard.CardTarget.ENEMY && availableMonsters.size() == 1 && ConfigPanel.when_only_targeting_one) ||
                         ( clickedCard.target == AbstractCard.CardTarget.ALL_ENEMY && ConfigPanel.when_targeting_all) ||
