@@ -5,6 +5,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.controller.CInputHelper;
 import com.megacrit.cardcrawl.helpers.input.InputHelper;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import justclick.panels.ConfigPanel;
@@ -25,10 +26,10 @@ public class ClickCardPatch {
     public static final Logger logger = LogManager.getLogger(ClickCardPatch.class.getName());
 
     @SpireInsertPatch(
-            rloc = 28
+            rlocs = {28, 15}
     )
     public static void Insert(AbstractPlayer __instance) {
-        if (InputHelper.justClickedLeft) {
+        if ((InputHelper.justClickedLeft || CInputHelper.isJustPressed(0)) && __instance.hoveredCard != null && !AbstractDungeon.isScreenUp) {
             try {
 
                 AbstractCard clickedCard = __instance.hoveredCard;
