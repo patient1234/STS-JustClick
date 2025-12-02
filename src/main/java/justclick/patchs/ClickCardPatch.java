@@ -48,7 +48,12 @@ public class ClickCardPatch {
                     __instance.hoveredCard = clickedCard;
                 }
 
-                logger.info("点击了卡牌: {}", clickedCard);
+                // 按作者建议：区分日志来源（热键/点击）
+                if (hotkeyTriggered) {
+                    logger.info("热键选择了卡牌: {}", clickedCard);
+                } else if (clickTriggered) {
+                    logger.info("点击了卡牌: {}", clickedCard);
+                }
 
                 Method playCardMethod = AbstractPlayer.class.getDeclaredMethod("playCard");
                 playCardMethod.setAccessible(true);
