@@ -29,12 +29,31 @@ public class ClickCardPatch {
             rlocs = {28, 15}
     )
     public static void Insert(AbstractPlayer __instance) {
-        if ((InputHelper.justClickedLeft || CInputHelper.isJustPressed(0)) && __instance.hoveredCard != null && !AbstractDungeon.isScreenUp) {
+        // 支持原生数字键热键：从手牌按组内顺序选第 N 张卡
+        AbstractCard hotkeyCard = null;
+        try {
+            hotkeyCard = InputHelper.getCardSelectedByHotkey(__instance.hand);
+        } catch (Throwable ignored) { }
+
+        boolean clickTriggered = (InputHelper.justClickedLeft || CInputHelper.isJustPressed(0));
+        boolean hotkeyTriggered = (hotkeyCard != null);
+
+        if (((clickTriggered && __instance.hoveredCard != null) || hotkeyTriggered) && !AbstractDungeon.isScreenUp) {
             try {
 
-                AbstractCard clickedCard = __instance.hoveredCard;
+                AbstractCard clickedCard = hotkeyTriggered ? hotkeyCard : __instance.hoveredCard;
 
-                logger.info("点击了卡牌: {}", clickedCard);
+                // 热键只改变选中卡，是否出牌由下方逻辑决定
+                if (hotkeyTriggered) {
+                    __instance.hoveredCard = clickedCard;
+                }
+
+                // 按作者建议：区分日志来源（热键/点击）
+                if (hotkeyTriggered) {
+                    logger.info("热键选择了卡牌: {}", clickedCard);
+                } else if (clickTriggered) {
+                    logger.info("点击了卡牌: {}", clickedCard);
+                }
 
                 Method playCardMethod = AbstractPlayer.class.getDeclaredMethod("playCard");
                 playCardMethod.setAccessible(true);
@@ -64,6 +83,9 @@ public class ClickCardPatch {
                     field.set(__instance, hoveredMonster);
 
                     playCardMethod.invoke(__instance);
+                } else if (hotkeyTriggered) {
+                    // 热键仅选中但不满足自动出牌：保持选中，交由原生空格/拖拽/取消
+                    return;
                 }
             } catch (NoSuchMethodException e) {
                 logger.error("找不到playCard方法", e);
